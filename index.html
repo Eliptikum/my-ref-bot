@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+  >
+
+  <meta name="theme-color" content="#121212">
+  <title>Реферальный Каталог</title>
+
+  <!-- Официальный Telegram Web Apps SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+
+      --app-bg: var(--tg-theme-bg-color, #121212);
+      --app-text: var(--tg-theme-text-color, #ffffff);
+      --app-hint: var(--tg-theme-hint-color, #9b9b9b);
+      --app-link: var(--tg-theme-link-color, #24a1de);
+      --app-button: var(--tg-theme-button-color, #24a1de);
+      --app-button-text: var(--tg-theme-button-text-color, #ffffff);
+      --app-secondary-bg: var(--tg-theme-secondary-bg-color, #1e1e1e);
+
+      --card-bg: color-mix(
+        in srgb,
+        var(--app-secondary-bg) 88%,
+        transparent
+      );
+
+      --border-color: color-mix(
+        in srgb,
+        var(--app-text) 10%,
+        transparent
+      );
+
+      --input-bg: color-mix(
+        in srgb,
+        var(--app-secondary-bg) 92%,
+        transparent
+      );
+
+      --shadow:
+        0 10px 30px rgba(0, 0, 0, 0.16),
+        0 2px 8px rgba(0, 0, 0, 0.08);
+
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--app-bg);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0;
+      color: var(--app-text);
+      background:
+        radial-gradient(
+          circle at 15% 0%,
+          color-mix(in srgb, var(--app-button) 18%, transparent),
+          transparent 32%
+        ),
+        radial-gradient(
+          circle at 95% 15%,
+          color-mix(in srgb, var(--app-link) 10%, transparent),
+          transparent 26%
+        ),
+        var(--app-bg);
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+      overflow-x: hidden;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+    }
+
+    .app {
+      width: min(100%, 900px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding:
+        max(24px, env(safe-area-inset-top))
+        max(16px, env(safe-area-inset-right))
+        max(28px, env(safe-area-inset-bottom))
+        max(16px, env(safe-area-inset-left));
+    }
+
+    .header {
+      padding: 12px 4px 22px;
+      text-align: center;
+      animation: slide-down 0.45s ease both;
+    }
+
+    .header__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 13px;
+      padding: 7px 11px;
+      color: var(--app-link);
+      background: color-mix(
+        in srgb,
+        var(--app-button) 13%,
+        transparent
+      );
+      border: 1px solid color-mix(
+        in srgb,
+        var(--app-button) 22%,
+        transparent
+      );
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .header__badge-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--app-button);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--app-button);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 8vw, 42px);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      max-width: 480px;
+      margin: 10px auto 0;
+      color: var(--app-hint);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .search {
+      position: relative;
+      margin-top: 24px;
+    }
+
+    .search__icon {
+      position: absolute;
+      top: 50%;
+      left: 15px;
+      width: 20px;
+      height: 20px;
+      color: var(--app-hint);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .search__input {
+      width: 100%;
+      height: 52px;
+      padding: 0 45px 0 46px;
+      color: var(--app-text);
+      caret-color: var(--app-button);
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      outline: none;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .search__input::placeholder {
+      color: var(--app-hint);
+      opacity: 0.85;
+    }
+
+    .search__input:focus {
+      border-color: color-mix(
+        in srgb,
+        var(--app-button) 65%,
+        transparent
+      );
+      box-shadow:
+        0 0 0 3px color-mix(
+          in srgb,
+          var(--app-button) 14%,
+          transparent
+        ),
+        var(--shadow);
+    }
+
+    .search__clear {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      display: none;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      color: var(--app-hint);
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      transform: translateY(-50%);
+    }
+
+    .search__clear.visible {
+      display: grid;
+      place-items: center;
+    }
+
+    .search__clear:active {
+      background: color-mix(
+        in srgb,
+        var(--app-text) 8%,
+        transparent
+      );
+    }
+
+    .catalog {
+      margin-top: 2px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 9px;
+      margin: 0 -16px 18px;
+      padding: 4px 16px 7px;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scrollbar-width: none;
+      scroll-snap-type: x proximity;
+    }
+
+    .filters::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter {
+      flex: 0 0 auto;
+      min-height: 40px;
+      padding: 0 17px;
+      color: var(--app-text);
+      background: color-mix(
+        in srgb,
+        var(--app-secondary-bg) 90%,
+        transparent
+      );
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 650;
+      cursor: pointer;
+      scroll-snap-align: start;
+      transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+    }
+
+    .filter:active {
+      transform: scale(0.96);
+    }
+
+    .filter.active {
+      color: var(--app-button-text);
+      background: var(--app-button);
+      border-color: var(--app-button);
+      box-shadow: 0 7px 20px color-mix(
+        in srgb,
+        var(--app-button) 25%,
+        transparent
+      );
+    }
+
+    .catalog__meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 0 2px;
+    }
+
+    .catalog__title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 750;
+    }
+
+    .catalog__count {
+      color: var(--app-hint);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      overflow: hidden;
+      animation: card-in 0.38s ease both;
+      transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .card::before {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--card-accent) 8%, transparent),
+        transparent 48%
+      );
+      content: "";
+      pointer-events: none;
+    }
+
+    .card__top,
+    .card__content,
+    .card__footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card__top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card__logo {
+      display: grid;
+      flex: 0 0 46px;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      color: #ffffff;
+      background:
+        linear-gradient(
+          135deg,
+          var(--card-accent),
+          color-mix(in srgb, var(--card-accent) 58%, #111111)
+        );
+      border: 1px solid rgba(255, 255, 255, 0.17);
+      border-radius: 50%;
+      box-shadow: 0 7px 18px color-mix(
+        in srgb,
+        var(--card-accent) 25%,
+        transparent
+      );
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .card__heading {
+      min-width: 0;
+    }
+
+    .card__name {
+      margin: 0;
+      overflow: hidden;
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.25;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .card__category {
+      display: block;
+      margin-top: 4px;
+      color: var(--app-hint);
+      font-size: 12px;
+    }
+
+    .card__content {
+      flex: 1;
+      margin: 15px 0;
+    }
+
+    .card__description {
+      margin: 0;
+      color: var(--app-text);
+      font-size: 14px;
+      line-height: 1.5;
+      opacity: 0.9;
+    }
+
+    .card__footer {
+      display: flex;
+    }
+
+    .card__button {
+      display: flex;
+      width: 100%;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 16px;
+      color: var(--app-button-text);
+      background: var(--app-button);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 750;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 7px 18px color-mix(
+        in srgb,
+        var(--app-button) 22%,
+        transparent
+      );
+      transition:
+        filter 0.2s ease,
+        transform 0.15s ease;
+    }
+
+    .card__button svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .card__button:active {
+      filter: brightness(0.92);
+      transform: scale(0.98);
+    }
+
+    .empty {
+      display: none;
+      padding: 40px 20px;
+      text-align: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .empty.visible {
+      display: block;
+      animation: card-in 0.35s ease both;
+    }
+
+    .empty__icon {
+      display: grid;
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 14px;
+      place-items: center;
+      color: var(--app-hint);
+      background: color-mix(
+        in srgb,
+        var(--app-text) 7%,
+        transparent
+      );
+      border-radius: 50%;
+      font-size: 23px;
+    }
+
+    .empty__title {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .empty__text {
+      margin: 7px 0 0;
+      color: var(--app-hint);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    @media (min-width: 560px) {
+      .app {
+        padding-right: 24px;
+        padding-left: 24px;
+      }
+
+      .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filters {
+        margin-right: -24px;
+        margin-left: -24px;
+        padding-right: 24px;
+        padding-left: 24px;
+      }
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .card:hover {
+        border-color: color-mix(
+          in srgb,
+          var(--card-accent) 36%,
+          var(--border-color)
+        );
+        box-shadow:
+          0 14px 38px rgba(0, 0, 0, 0.2),
+          0 4px 12px rgba(0, 0, 0, 0.09);
+        transform: translateY(-3px);
+      }
+
+      .card__button:hover {
+        filter: brightness(1.08);
+      }
+
+      .filter:hover:not(.active) {
+        background: color-mix(
+          in srgb,
+          var(--app-secondary-bg) 80%,
+          var(--app-text) 5%
+        );
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @keyframes slide-down {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes card-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header class="header">
+      <div class="header__badge">
+        <span class="header__badge-dot"></span>
+        Выгодные предложения
+      </div>
+
+      <h1>Реферальный Каталог</h1>
+      <p class="subtitle">Забирай лучшие бонусы и скидки</p>
+
+      <div class="search" role="search">
+        <svg
+          class="search__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <input
+          class="search__input"
+          id="searchInput"
+          type="search"
+          placeholder="Найти проект или бонус..."
+          autocomplete="off"
+          aria-label="Поиск по каталогу"
+        >
+
+        <button
+          class="search__clear"
+          id="clearSearch"
+          type="button"
+          aria-label="Очистить поиск"
+        >
+          ✕
+        </button>
+      </div>
+    </header>
+
+    <section class="catalog" aria-labelledby="catalogTitle">
+      <nav class="filters" aria-label="Категории">
+        <button
+          class="filter active"
+          type="button"
+          data-category="all"
+          aria-pressed="true"
+        >
+          Все
+        </button>
+
+        <button
+          class="filter"
+          type="button"
+          data-category="exchanges"
+          aria-pressed="false"
+        >
+          Биржи
+        </button>
+
+        <button
+          class="filter"
+          type="button"
+          data-category="games"
+          aria-pressed="false"
+        >
+          Игры
+        </button>
+
+        <button
+          class="filter"
+          type="button"
+          data-category="services"
+          aria-pressed="false"
+        >
+          Сервисы
+        </button>
+      </nav>
+
+      <div class="catalog__meta">
+        <h2 class="catalog__title" id="catalogTitle">Предложения</h2>
+        <span class="catalog__count" id="catalogCount"></span>
+      </div>
+
+      <div class="cards" id="cards"></div>
+
+      <div class="empty" id="emptyState">
+        <div class="empty__icon" aria-hidden="true">⌕</div>
+        <h3 class="empty__title">Ничего не найдено</h3>
+        <p class="empty__text">
+          Попробуйте изменить поисковый запрос или выбрать другую категорию.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const projects = [
+        {
+          id: 1,
+          name: "CryptoNova",
+          description: "Бонус $50 при регистрации и сниженная комиссия.",
+          category: "exchanges",
+          categoryName: "Биржи",
+          url: "https://example.com/ref/cryptonova",
+          logo: "CN",
+          color: "#627EEA"
+        },
+        {
+          id: 2,
+          name: "BitFlow",
+          description: "Скидка 20% на торговые комиссии в первый месяц.",
+          category: "exchanges",
+          categoryName: "Биржи",
+          url: "https://example.com/ref/bitflow",
+          logo: "BF",
+          color: "#F3BA2F"
+        },
+        {
+          id: 3,
+          name: "Pixel Quest",
+          description: "Эксклюзивный набор предметов для новых игроков.",
+          category: "games",
+          categoryName: "Игры",
+          url: "https://example.com/ref/pixelquest",
+          logo: "PQ",
+          color: "#8B5CF6"
+        },
+        {
+          id: 4,
+          name: "CloudBox",
+          description: "Дополнительные 25 ГБ облачного хранилища бесплатно.",
+          category: "services",
+          categoryName: "Сервисы",
+          url: "https://example.com/ref/cloudbox",
+          logo: "CB",
+          color: "#24A1DE"
+        },
+        {
+          id: 5,
+          name: "TaskFlow Pro",
+          description: "30 дней премиум-доступа для управления задачами.",
+          category: "services",
+          categoryName: "Сервисы",
+          url: "https://example.com/ref/taskflow",
+          logo: "TF",
+          color: "#10B981"
+        }
+      ];
+
+      const telegram = window.Telegram?.WebApp;
+
+      const cardsContainer = document.getElementById("cards");
+      const filtersContainer = document.querySelector(".filters");
+      const filterButtons = [...document.querySelectorAll(".filter")];
+      const searchInput = document.getElementById("searchInput");
+      const clearSearchButton = document.getElementById("clearSearch");
+      const catalogCount = document.getElementById("catalogCount");
+      const emptyState = document.getElementById("emptyState");
+
+      let selectedCategory = "all";
+      let searchQuery = "";
+
+      function initializeTelegram() {
+        if (!telegram) return;
+
+        telegram.ready();
+        telegram.expand();
+
+        // Сообщаем Telegram, что приложение поддерживает текущую тему.
+        document.documentElement.style.colorScheme =
+          telegram.colorScheme === "light" ? "light" : "dark";
+
+        updateThemeColor();
+
+        telegram.onEvent("themeChanged", () => {
+          document.documentElement.style.colorScheme =
+            telegram.colorScheme === "light" ? "light" : "dark";
+
+          updateThemeColor();
+        });
+      }
+
+      function updateThemeColor() {
+        const backgroundColor =
+          telegram?.themeParams?.bg_color || "#121212";
+
+        document
+          .querySelector('meta[name="theme-color"]')
+          .setAttribute("content", backgroundColor);
+
+        if (telegram?.setHeaderColor) {
+          try {
+            telegram.setHeaderColor("bg_color");
+          } catch (error) {
+            // Старые версии Telegram могут не поддерживать этот метод.
+          }
+        }
+
+        if (telegram?.setBackgroundColor) {
+          try {
+            telegram.setBackgroundColor(backgroundColor);
+          } catch (error) {
+            // Игнорируем ошибку для старых клиентов.
+          }
+        }
+      }
+
+      function getFilteredProjects() {
+        const normalizedQuery = searchQuery.trim().toLocaleLowerCase("ru");
+
+        return projects.filter((project) => {
+          const categoryMatches =
+            selectedCategory === "all" ||
+            project.category === selectedCategory;
+
+          const searchableText = [
+            project.name,
+            project.description,
+            project.categoryName
+          ]
+            .join(" ")
+            .toLocaleLowerCase("ru");
+
+          const searchMatches =
+            !normalizedQuery || searchableText.includes(normalizedQuery);
+
+          return categoryMatches && searchMatches;
+        });
+      }
+
+      function createCard(project, index) {
+        const article = document.createElement("article");
+        article.className = "card";
+        article.style.setProperty("--card-accent", project.color);
+        article.style.animationDelay = `${Math.min(index * 55, 220)}ms`;
+
+        const top = document.createElement("div");
+        top.className = "card__top";
+
+        const logo = document.createElement("div");
+        logo.className = "card__logo";
+        logo.textContent = project.logo;
+        logo.setAttribute("aria-hidden", "true");
+
+        const heading = document.createElement("div");
+        heading.className = "card__heading";
+
+        const name = document.createElement("h3");
+        name.className = "card__name";
+        name.textContent = project.name;
+
+        const category = document.createElement("span");
+        category.className = "card__category";
+        category.textContent = project.categoryName;
+
+        heading.append(name, category);
+        top.append(logo, heading);
+
+        const content = document.createElement("div");
+        content.className = "card__content";
+
+        const description = document.createElement("p");
+        description.className = "card__description";
+        description.textContent = project.description;
+
+        content.append(description);
+
+        const footer = document.createElement("div");
+        footer.className = "card__footer";
+
+        const openButton = document.createElement("button");
+        openButton.className = "card__button";
+        openButton.type = "button";
+        openButton.setAttribute(
+          "aria-label",
+          `Открыть предложение ${project.name}`
+        );
+
+        openButton.innerHTML = `
+          <span>Открыть</span>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M7 17 17 7m0 0H9m8 0v8"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        `;
+
+        openButton.addEventListener("click", () => {
+          openReferralLink(project.url);
+        });
+
+        footer.append(openButton);
+        article.append(top, content, footer);
+
+        return article;
+      }
+
+      function renderProjects() {
+        const filteredProjects = getFilteredProjects();
+
+        cardsContainer.replaceChildren(
+          ...filteredProjects.map(createCard)
+        );
+
+        catalogCount.textContent = getCountText(filteredProjects.length);
+        emptyState.classList.toggle(
+          "visible",
+          filteredProjects.length === 0
+        );
+      }
+
+      function getCountText(count) {
+        const lastDigit = count % 10;
+        const lastTwoDigits = count % 100;
+
+        let word = "предложений";
+
+        if (lastTwoDigits < 11 || lastTwoDigits > 14) {
+          if (lastDigit === 1) word = "предложение";
+          if (lastDigit >= 2 && lastDigit <= 4) word = "предложения";
+        }
+
+        return `${count} ${word}`;
+      }
+
+      function openReferralLink(url) {
+        if (telegram?.HapticFeedback) {
+          telegram.HapticFeedback.impactOccurred("light");
+        }
+
+        if (telegram?.openLink) {
+          telegram.openLink(url);
+          return;
+        }
+
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+
+      filtersContainer.addEventListener("click", (event) => {
+        const button = event.target.closest(".filter");
+        if (!button) return;
+
+        selectedCategory = button.dataset.category;
+
+        filterButtons.forEach((filterButton) => {
+          const isActive = filterButton === button;
+
+          filterButton.classList.toggle("active", isActive);
+          filterButton.setAttribute(
+            "aria-pressed",
+            String(isActive)
+          );
+        });
+
+        if (telegram?.HapticFeedback) {
+          telegram.HapticFeedback.selectionChanged();
+        }
+
+        renderProjects();
+      });
+
+      searchInput.addEventListener("input", (event) => {
+        searchQuery = event.target.value;
+        clearSearchButton.classList.toggle(
+          "visible",
+          searchQuery.length > 0
+        );
+
+        renderProjects();
+      });
+
+      clearSearchButton.addEventListener("click", () => {
+        searchInput.value = "";
+        searchQuery = "";
+        clearSearchButton.classList.remove("visible");
+        searchInput.focus();
+        renderProjects();
+      });
+
+      initializeTelegram();
+      renderProjects();
+    })();
+  </script>
+</body>
+</html>
